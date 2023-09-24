@@ -47,8 +47,8 @@ public function login(Request $request)
         'role' => $user->role
     ];
 
-    $token = $user->createToken('authToken', $payload)->plainTextToken;
-
+    $token = $user->createToken('authToken', ['expires_at' => now()->
+    addMinutes(60), 'user_id' => $user->id, 'role' => $user->role])->plainTextToken;
     return response()->json(['user_token' => $token]);
 }
 }
