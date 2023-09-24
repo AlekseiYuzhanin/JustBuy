@@ -3,29 +3,21 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
+use JWTAuth;
+use Exception;
 
 class AdminRoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next, $guard = null)
     {
-        if (!$request->header('Authorization')) {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+        } catch (Exception $e) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $token = $request->header('Authorization');
-
-        $payload = JWTAuth::getPayload($token)->toArray();
-
-        if ($payload['role'] !== 'admin') {
-            return response()->json(['error' => 'Access denied'], 403);
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         return $next($request);
