@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('fio');
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('role')->default('admin');
             $table->timestamps();
         });
     }
